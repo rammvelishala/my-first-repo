@@ -1,0 +1,26 @@
+#!/bin/bash
+echo "---------------------------------------------"
+now=$(date)
+echo "$now"
+SERVICE="/app-hosting/apache-tomcat-9.0.33_admin/conf/"
+if ps aux | grep /app-hosting/apache-tomcat-9.0.33_admin/conf/ | grep -v grep >/dev/null
+then
+    echo "$SERVICE is running"
+else
+    echo "$SERVICE stopped"
+    cd /app-hosting/apache-tomcat-9.0.33_admin/bin/
+    sh startup.sh
+    sleep 60s
+    sh shutdown.sh
+    sleep 15s
+    stop_tomcat_pid_check=$(pgrep -f '/app-hosting/apache-tomcat-9.0.33_admin')
+    if [ $stop_tomcat_pid_check > 0 ]
+    then
+      echo "tomcat did not stop through script. Killing the process"
+      kill -9 $stop_tomcat_pid_check
+      sleep 5
+    fi
+    sh startup.sh
+
+fi
+
